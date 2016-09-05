@@ -9,7 +9,6 @@
 #include <iostream>
 #include <fstream>
 #include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
 #include <TH/TH.h>
 #include <locale>
