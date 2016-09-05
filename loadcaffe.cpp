@@ -19,8 +19,8 @@
 
 #include "build/caffe.pb.h"
 
-using google::protobuf::io::FileInputStream;
-using google::protobuf::io::FileOutputStream;
+using google::protobuf::io::IstreamInputStream;
+// using google::protobuf::io::OstreamOutputStream;
 using google::protobuf::io::ZeroCopyInputStream;
 using google::protobuf::io::CodedInputStream;
 using google::protobuf::Message;
@@ -39,24 +39,23 @@ void destroyBinary(void** handle);
 
 
 bool ReadProtoFromTextFile(const char* filename, Message* proto) {
-    int fd = open(filename, O_RDONLY);
-    if(fd < 0)
-      return false;
+    std::ifstream ifs(filename);
+    if (!ifs)
+        return false;
     
-    FileInputStream* input = new FileInputStream(fd);
+    IstreamInputStream* input = new IstreamInputStream(&ifs);
     bool success = google::protobuf::TextFormat::Parse(input, proto);
     delete input;
-    close(fd);
     return success;
 }
 
 
 bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
-    int fd = open(filename, O_RDONLY);
-    if(fd < 0)
-      return false;
+    std::ifstream ifs(filename);
+    if (!ifs)
+        return false;
     
-    ZeroCopyInputStream* raw_input = new FileInputStream(fd);
+    ZeroCopyInputStream* raw_input = new IstreamInputStream(&ifs);
     CodedInputStream* coded_input = new CodedInputStream(raw_input);
     coded_input->SetTotalBytesLimit(1073741824, 536870912);
     
@@ -64,7 +63,6 @@ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
     
     delete coded_input;
     delete raw_input;
-    close(fd);
     return success;
 }
 
