@@ -20,7 +20,6 @@
 #include "build/caffe.pb.h"
 
 using google::protobuf::io::IstreamInputStream;
-// using google::protobuf::io::OstreamOutputStream;
 using google::protobuf::io::ZeroCopyInputStream;
 using google::protobuf::io::CodedInputStream;
 using google::protobuf::Message;
@@ -43,10 +42,8 @@ bool ReadProtoFromTextFile(const char* filename, Message* proto) {
     if (!ifs)
         return false;
     
-    IstreamInputStream* input = new IstreamInputStream(&ifs);
-    bool success = google::protobuf::TextFormat::Parse(input, proto);
-    delete input;
-    return success;
+    IstreamInputStream input(&ifs);
+    return google::protobuf::TextFormat::Parse(&input, proto);
 }
 
 
@@ -55,15 +52,10 @@ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
     if (!ifs)
         return false;
     
-    ZeroCopyInputStream* raw_input = new IstreamInputStream(&ifs);
-    CodedInputStream* coded_input = new CodedInputStream(raw_input);
-    coded_input->SetTotalBytesLimit(1073741824, 536870912);
-    
-    bool success = proto->ParseFromCodedStream(coded_input);
-    
-    delete coded_input;
-    delete raw_input;
-    return success;
+    IstreamInputStream raw_input(&ifs);
+    CodedInputStream coded_input(static_cast<ZeroCopyInputStream*>(&raw_input));
+    coded_input.SetTotalBytesLimit(1073741824, 536870912);    
+    return  proto->ParseFromCodedStream(&coded_input);
 }
 
 

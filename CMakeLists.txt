@@ -17,7 +17,7 @@ SET(src loadcaffe.cpp ${PROTO_SRCS})
 
 FILE(GLOB luasrc *.lua)
 
-add_definitions(/DPROTOBUF_USE_DLLS)
+add_definitions(/DPROTOBUF_USE_DLLS /D_CRT_SECURE_NO_DEPRECATE /wo4244 /wo4251)
 
 ADD_LIBRARY(loadcaffe MODULE ${src})
 TARGET_LINK_LIBRARIES(loadcaffe TH ${PROTOBUF_LIBRARIES})
